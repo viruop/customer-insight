@@ -18,7 +18,7 @@ class App {
     });
   }
 
-  get<TResponse>({ url }: Request) {
+  get<TResponse>(url: string) {
     return client.get<TResponse>(url, {
       data: {},
     });
