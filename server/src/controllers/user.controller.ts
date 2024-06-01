@@ -18,6 +18,22 @@ export const getActiveCustomers = async (req: Request, res: Response) => {
   }
 };
 
+export const getTransactionsByAccountId = async (
+  req: Request,
+  res: Response
+) => {
+  const accountId = req.params.accountId;
+  try {
+    const transactions = await Transaction.find({
+      accountId,
+    });
+    res.json(transactions);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error fetching transactions");
+  }
+};
+
 // Handler to get transactions below 5000
 export const getTransactionsBelow5000 = async (req: Request, res: Response) => {
   try {

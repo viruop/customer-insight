@@ -2,9 +2,11 @@ import mongoose from "mongoose";
 import Customer from "./models/customer";
 import Transaction from "./models/transaction";
 import Product from "./models/product";
+import dotenv from "dotenv";
 
-const mongoURI =
-  "mongodb+srv://virajrai706:WvNf8GUrkX43wYHw@assignement.vmgusa4.mongodb.net/?retryWrites=true&w=majority&appName=assignement";
+dotenv.config({ path: "./.env" });
+
+const mongoURI = process.env.MONGO_URL!;
 
 mongoose
   .connect(mongoURI, {})
@@ -37,11 +39,36 @@ const seedDatabase = async () => {
 
     // Insert transactions
     const transactions = [
-      { accountId: "account1", amount: 1000, date: new Date() },
-      { accountId: "account1", amount: 6000, date: new Date() },
-      { accountId: "account2", amount: 2000, date: new Date() },
-      { accountId: "account3", amount: 4500, date: new Date() },
-      { accountId: "account4", amount: 10000, date: new Date() },
+      {
+        accountId: "account1",
+        amount: 1000,
+        transactionType: "Deposit",
+        date: new Date(),
+      },
+      {
+        accountId: "account1",
+        amount: 6000,
+        transactionType: "Withdrawal",
+        date: new Date(),
+      },
+      {
+        accountId: "account2",
+        amount: 2000,
+        transactionType: "Deposit",
+        date: new Date(),
+      },
+      {
+        accountId: "account3",
+        amount: 4500,
+        transactionType: "Interest",
+        date: new Date(),
+      },
+      {
+        accountId: "account4",
+        amount: 10000,
+        transactionType: "Deposit",
+        date: new Date(),
+      },
     ];
     await Transaction.insertMany(transactions);
 
