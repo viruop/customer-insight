@@ -31,7 +31,7 @@ const authParams = stringify({
   prompt: "consent",
 });
 
-const getTokenParams = (code: any) =>
+const getTokenParams = (code: string) =>
   stringify({
     client_id: config.clientId,
     client_secret: config.clientSecret,
@@ -40,24 +40,14 @@ const getTokenParams = (code: any) =>
     redirect_uri: config.redirectUrl,
   });
 
-dotenv.config();
-//intialize app
 const app = express();
 
-//middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(
-  cors({
-    origin: [config.clientUrl!],
-    credentials: true,
-  })
-);
-// Parse Cookie
+app.use(cors({ origin: config.clientUrl, credentials: true }));
 app.use(cookieParser());
 
-// Verify auth
-const auth = (req: Request, res: Response, next: any) => {
+const auth = (req: Request, res: Response, next: Function) => {
   try {
     const token = req.cookies.token;
     if (!token) return res.status(401).json({ message: "Unauthorized" });
@@ -69,13 +59,8 @@ const auth = (req: Request, res: Response, next: any) => {
   }
 };
 
-/**
- * Returns the url that the client should navigate to
- */
 app.get("/auth/url", (_, res) => {
-  res.json({
-    url: `${config.authUrl}?${authParams}`,
-  });
+  res.json({ url: `${config.authUrl}?${authParams}` });
 });
 
 app.get("/auth/token", async (req, res) => {
@@ -84,31 +69,25 @@ app.get("/auth/token", async (req, res) => {
     return res
       .status(400)
       .json({ message: "Authorization code must be provided" });
+
   try {
-    // Get all parameters needed to hit authorization server
-    const tokenParam = getTokenParams(code);
-    // Exchange authorization code for access token (id token is returned here too)
+    const tokenParam = getTokenParams(code as string);
     const {
       data: { id_token },
     } = await axios.post(`${config.tokenUrl}?${tokenParam}`);
     if (!id_token) return res.status(400).json({ message: "Auth error" });
-    // Get user info from id token
-    //@ts-ignore
-    const { email, name, picture } = jwt.decode(id_token);
+
+    const { email, name, picture } = jwt.decode(id_token) as any;
     const user = { name, email, picture };
-    // Sign a new token
     const token = jwt.sign({ user }, config.tokenSecret!, {
       expiresIn: config.tokenExpiration,
     });
-    // Set cookies for user
+
     res.cookie("token", token, {
       maxAge: config.tokenExpiration,
       httpOnly: true,
     });
-    // You can choose to store user in a DB instead
-    res.json({
-      user,
-    });
+    res.json({ user });
   } catch (err: any) {
     console.error("Error: ", err);
     res.status(500).json({ message: err.message || "Server error" });
@@ -117,15 +96,14 @@ app.get("/auth/token", async (req, res) => {
 
 app.get("/auth/logged_in", (req, res) => {
   try {
-    // Get token from cookie
     const token = req.cookies.token;
     if (!token) return res.json({ loggedIn: false });
-    //@ts-ignore
-    const { user } = jwt.verify(token, config.tokenSecret!);
+
+    const { user } = jwt.verify(token, config.tokenSecret!) as any;
     const newToken = jwt.sign({ user }, config.tokenSecret!, {
       expiresIn: config.tokenExpiration,
     });
-    // Reset token in cookie
+
     res.cookie("token", newToken, {
       maxAge: config.tokenExpiration,
       httpOnly: true,
@@ -137,10 +115,8 @@ app.get("/auth/logged_in", (req, res) => {
 });
 
 app.post("/auth/logout", (_, res) => {
-  // clear cookie
   res.clearCookie("token").json({ message: "Logged out" });
 });
 
-//connecting database
 connectDatabase();
 export default app;

@@ -19,7 +19,7 @@ router.get("/customers", getActiveCustomers);
 router.get("/transactions/:accountId", getTransactionsByAccountId);
 
 // Route to get transactions below 5000
-router.get("/transactions/below5000", getTransactionsBelow5000);
+router.get("/transactionsbelow5000", getTransactionsBelow5000);
 
 // Route to get distinct products
 router.get("/products", getDistinctProducts);
