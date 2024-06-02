@@ -20,3 +20,9 @@ export type GetTransactionsByAccoutID = {
   date: string;
   __v: number;
 };
+
+export type User = {
+  name: string;
+  email: string;
+  picture: string;
+};
