@@ -7,11 +7,31 @@ interface ICustomer extends Document {
   isActive: boolean;
 }
 
-const CustomerSchema: Schema = new Schema({
+const tierDetailsSchema = new Schema(
+  {
+    tier: { type: String, required: true },
+    id: { type: String, required: true },
+    active: { type: Boolean, required: true },
+    benefits: { type: [String], required: true },
+  },
+  { _id: false }
+);
+
+// Define the main customers schema
+const customerSchema = new Schema({
+  _id: { type: mongoose.Schema.Types.ObjectId, required: true },
+  username: { type: String, required: true },
   name: { type: String, required: true },
   address: { type: String, required: true },
-  accounts: [{ id: { type: String, required: true } }],
-  isActive: { type: Boolean, default: true },
+  birthdate: { type: Date, required: true },
+  email: { type: String, required: true },
+  active: { type: Boolean, required: true },
+  accounts: { type: [Number], required: true },
+  tier_and_details: {
+    type: Map,
+    of: tierDetailsSchema,
+    required: true,
+  },
 });
 
-export default mongoose.model<ICustomer>("Customer", CustomerSchema);
+export default mongoose.model<ICustomer>("Customer", customerSchema);
