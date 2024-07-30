@@ -11,7 +11,7 @@
 1. Clone the repository:
     ```bash
     git clone https://github.com/viruop/customer-insight.git
-    cd customer-account-management
+    cd customer-insight
     ```
 
 2. Install dependencies for the client:
